@@ -1,8 +1,6 @@
 package com.p2p;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.InputStream;
+import java.io.*;
 
 import java.net.Socket;
 
@@ -23,8 +21,8 @@ public class PeerManager {
 
     // Socket variables
     private Socket socket = null;
-    private OutputStream output = null;
-    private InputStream input = null;
+    private BufferedOutputStream bufferedOutputStream = null;
+    private BufferedInputStream bufferedInputStream = null;
     private boolean clientValue = false;
 
     // Initialize ownerId to zero.
@@ -43,6 +41,16 @@ public class PeerManager {
     public byte[] getHandshakeMessage(int peerId) throws IOException {
         return ByteArrayManipulation.mergeByteArray(HANDSHAKE_HEADER, ZERO_BITS,
                 ByteArrayManipulation.intToByteArray(peerId));
+    }
+
+    public PeerManager(Socket socket) throws IOException {
+
+        synchronized (this) {
+            this.socket=socket;
+            bufferedInputStream=new BufferedInputStream(socket.getInputStream());
+            bufferedOutputStream=new BufferedOutputStream(socket.getOutputStream());
+        }
+
     }
 
     public synchronized void sndHandshakeMessage() throws IOException {
